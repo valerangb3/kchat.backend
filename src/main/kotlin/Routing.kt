@@ -5,7 +5,6 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.kchat.model.Priority
 import com.kchat.model.Task
 import com.kchat.model.TaskRepository
-import com.kchat.model.tasksAsTable
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -18,6 +17,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
+import kotlinx.serialization.SerializationException
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.Duration
@@ -27,18 +27,17 @@ import org.jetbrains.exposed.sql.*
 fun Application.configureRouting() {
     routing {
         staticResources("/task-ui", "task-ui")
+        staticResources("static", "static")
 
         get("/") {
             call.respondText("Hello World!")
         }
 
+
         route("/tasks") {
             get {
                 val tasks = TaskRepository.allTasks()
-                call.respondText(
-                    contentType = ContentType.parse("text/html"),
-                    text = tasks.tasksAsTable()
-                )
+                call.respond(tasks)
             }
 
             get("/byPriority/{priority?}") {
@@ -56,42 +55,51 @@ fun Application.configureRouting() {
                         return@get
                     }
 
-                    call.respondText(
-                        contentType = ContentType.parse("text/html"),
-                        text = tasks.tasksAsTable()
-                    )
+                    call.respond(tasks)
                 } catch (ex: IllegalArgumentException) {
                     call.respond(HttpStatusCode.BadRequest)
                 }
             }
 
-            post {
-                val formContent = call.receiveParameters()
-                val params = Triple(
-                    formContent["name"] ?: "",
-                    formContent["description"] ?: "",
-                    formContent["priority"] ?: ""
-                )
-
-                if (params.toList().any { it.isEmpty() }) {
+            get("/byName/{taskName}") {
+                val name = call.parameters["taskName"]
+                if (name == null) {
                     call.respond(HttpStatusCode.BadRequest)
-                    return@post
+                    return@get
                 }
 
+                val task = TaskRepository.taskByName(name)
+                if (task == null) {
+                    call.respond(HttpStatusCode.NotFound)
+                    return@get
+                }
+
+                call.respond(task)
+            }
+
+            post {
                 try {
-                    val priority = Priority.valueOf(params.third)
-                    TaskRepository.addTask(
-                        Task(
-                            params.first,
-                            params.second,
-                            priority
-                        )
-                    )
-                    call.respond(HttpStatusCode.NoContent)
-                } catch (ex: IllegalArgumentException) {
-                    call.respond(HttpStatusCode.BadRequest)
+                    val task = call.receive<Task>()
+                    TaskRepository.addTask(task)
+                    call.respond(HttpStatusCode.Created)
                 } catch (ex: IllegalStateException) {
                     call.respond(HttpStatusCode.BadRequest)
+                } catch (ex: SerializationException) {
+                    call.respond(HttpStatusCode.BadRequest)
+                }
+            }
+
+            delete("/{taskName}") {
+                val name = call.parameters["taskName"]
+                if (name == null) {
+                    call.respond(HttpStatusCode.BadRequest)
+                    return@delete
+                }
+
+                if (TaskRepository.removeTask(name)) {
+                    call.respond(HttpStatusCode.NoContent)
+                } else {
+                    call.respond(HttpStatusCode.NotFound)
                 }
             }
         }
