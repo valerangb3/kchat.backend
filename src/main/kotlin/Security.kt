@@ -17,14 +17,14 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import org.jetbrains.exposed.sql.*
 
 fun Application.configureSecurity() {
     // Please read the jwt property from the config file if you are using EngineMain
-    val jwtAudience = "jwt-audience"
-    val jwtDomain = "https://jwt-provider-domain/"
-    val jwtRealm = "ktor sample app"
-    val jwtSecret = "secret"
+    val jwtSecret = environment.config.property("jwt.secret").getString()
+    val jwtAudience = environment.config.property("jwt.audience").getString()
+    val jwtDomain = environment.config.property("jwt.issuer").getString()
+    val jwtRealm = environment.config.property("jwt.realm").getString()
+
     authentication {
         jwt {
             realm = jwtRealm

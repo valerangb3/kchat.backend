@@ -17,7 +17,6 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import org.jetbrains.exposed.sql.*
 
 fun Application.configureSockets() {
     install(WebSockets) {

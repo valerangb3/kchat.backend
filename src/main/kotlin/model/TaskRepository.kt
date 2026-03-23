@@ -1,6 +1,14 @@
 package com.kchat.model
 
-object TaskRepository {
+interface TaskRepository {
+    suspend fun allTasks(): List<Task>
+    suspend fun tasksByPriority(priority: Priority): List<Task>
+    suspend fun taskByName(name: String): Task?
+    suspend fun addTask(task: Task)
+    suspend fun removeTask(name: String): Boolean
+}
+
+class FakeTaskRepository : TaskRepository {
     private val tasks = mutableListOf(
         Task("cleaning", "Clean the house", Priority.Low),
         Task("gardening", "Mow the lawn", Priority.Medium),
@@ -8,20 +16,20 @@ object TaskRepository {
         Task("painting", "Paint the fence", Priority.Medium)
     )
 
-    fun allTasks(): List<Task> = tasks.toList()
+    override suspend fun allTasks(): List<Task> = tasks.toList()
 
-    fun tasksByPriority(priority: Priority) = tasks.filter { it.priority == priority }
+    override suspend fun tasksByPriority(priority: Priority) = tasks.filter { it.priority == priority }
 
-    fun taskByName(name: String) = tasks.find { it.name.equals(name, ignoreCase = true) }
+    override suspend fun taskByName(name: String) = tasks.find { it.name.equals(name, ignoreCase = true) }
 
-    fun addTask(task: Task) {
+    override suspend fun addTask(task: Task) {
         if (taskByName(task.name) != null) {
             throw IllegalStateException("Cannot duplicate task names!")
         }
         tasks.add(task)
     }
 
-    fun removeTask(name: String): Boolean {
+    override suspend fun removeTask(name: String): Boolean {
         return tasks.removeIf { it.name == name }
     }
 }
