@@ -1,4 +1,4 @@
-package com.kchat.model.request
+package com.kchat.user.model.request
 
 import kotlinx.serialization.Serializable
 

@@ -5,6 +5,10 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.kchat.model.Priority
 import com.kchat.model.Task
 import com.kchat.model.TaskRepository
+import com.kchat.routes.userRoutes
+import com.kchat.tokens.data.UserTokensRepository
+import com.kchat.user.data.UserRepository
+import com.kchat.utils.TokenManager
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -23,7 +27,11 @@ import java.sql.DriverManager
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-fun Application.configureRouting() {
+fun Application.configureRouting(
+    userRepository: UserRepository,
+    userTokensRepository: UserTokensRepository,
+    tokenManager: TokenManager
+) {
     routing {
         staticResources("/task-ui", "task-ui")
         staticResources("static", "static")
@@ -31,5 +39,11 @@ fun Application.configureRouting() {
         get("/") {
             call.respondText("Hello World!")
         }
+
+        userRoutes(
+            userRepository,
+            userTokensRepository,
+            tokenManager
+        )
     }
 }
