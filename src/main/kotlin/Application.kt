@@ -2,6 +2,7 @@ package com.kchat
 
 import com.kchat.model.FakeTaskRepository
 import com.kchat.model.PostgresTaskRepository
+import com.kchat.model.PostgresUserRepository
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
@@ -12,7 +13,8 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     val repository = PostgresTaskRepository()
-    configureSerialization(repository)
+    val userRepository = PostgresUserRepository()
+    configureSerialization(repository, userRepository)
     configureDatabases()
     configureSockets()
     configureSecurity()

@@ -27,10 +27,6 @@ class TaskDAO(id: EntityID<Int>) : IntEntity(id) {
     var priority by TaskTable.priority
 }
 
-suspend fun <T> withTransaction(block: suspend JdbcTransaction.() -> T): T = withContext(Dispatchers.IO) {
-    inTopLevelSuspendTransaction { block() }
-}
-
 fun daoToModel(dao: TaskDAO) = Task(
     dao.name,
     dao.description,

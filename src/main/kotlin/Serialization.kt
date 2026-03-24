@@ -5,6 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm
 import com.kchat.model.Priority
 import com.kchat.model.Task
 import com.kchat.model.TaskRepository
+import com.kchat.model.User
+import com.kchat.model.UserRepository
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -22,7 +24,10 @@ import java.sql.DriverManager
 import java.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-fun Application.configureSerialization(taskRepository: TaskRepository) {
+fun Application.configureSerialization(
+    taskRepository: TaskRepository,
+    userRepository: UserRepository
+) {
     install(ContentNegotiation) {
         json()
     }
@@ -93,6 +98,18 @@ fun Application.configureSerialization(taskRepository: TaskRepository) {
                     call.respond(HttpStatusCode.NoContent)
                 } else {
                     call.respond(HttpStatusCode.NotFound)
+                }
+            }
+        }
+
+        route("/user") {
+            post {
+                try {
+                    val user = call.receive<User>()
+                    userRepository.addUser(user)
+                    call.respond(HttpStatusCode.Created)
+                } catch (ex: SerializationException) {
+                    call.respond(HttpStatusCode.BadRequest)
                 }
             }
         }

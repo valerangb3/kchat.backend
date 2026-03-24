@@ -3,7 +3,7 @@ package com.kchat.model
 import com.kchat.model.db.TaskDAO
 import com.kchat.model.db.TaskTable
 import com.kchat.model.db.daoToModel
-import com.kchat.model.db.withTransaction
+import com.kchat.utils.withTransaction
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 
