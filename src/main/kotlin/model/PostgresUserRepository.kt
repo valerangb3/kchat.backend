@@ -1,6 +1,7 @@
 package com.kchat.model
 
 import com.kchat.model.db.UserDao
+import com.kchat.model.request.RequestRegistration
 import com.kchat.utils.withTransaction
 
 class PostgresUserRepository : UserRepository {
@@ -17,5 +18,17 @@ class PostgresUserRepository : UserRepository {
                 photoUrl = user.photo ?: ""
             }
         }
+    }
+
+    override suspend fun login(user: User): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun refreshToken(token: String): String {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun registration(credential: RequestRegistration): User {
+        TODO("Not yet implemented")
     }
 }

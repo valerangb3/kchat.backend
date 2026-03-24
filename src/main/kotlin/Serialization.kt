@@ -7,6 +7,8 @@ import com.kchat.model.Task
 import com.kchat.model.TaskRepository
 import com.kchat.model.User
 import com.kchat.model.UserRepository
+import com.kchat.model.request.RequestRegistration
+import com.kchat.model.request.ResponseRegistration
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -19,6 +21,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.serialization.SerializationException
+import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import java.sql.Connection
 import java.sql.DriverManager
 import java.time.Duration
@@ -105,11 +108,34 @@ fun Application.configureSerialization(
         route("/user") {
             post {
                 try {
+                    //val requestRegistration = call.receive<RequestRegistration>()
                     val user = call.receive<User>()
                     userRepository.addUser(user)
                     call.respond(HttpStatusCode.Created)
                 } catch (ex: SerializationException) {
                     call.respond(HttpStatusCode.BadRequest)
+                } catch (ex: ExposedSQLException) {
+                    call.respond(HttpStatusCode.Conflict)
+                }
+            }
+            post("/login") {  }
+            post("/register") {
+                var requestRegistration: RequestRegistration? = null
+                try {
+                    requestRegistration = call.receive<RequestRegistration>()
+                    val user = userRepository.registration(requestRegistration)
+                    //userRepository.addUser(user)
+                    call.respond(HttpStatusCode.Created)
+                } catch (ex: SerializationException) {
+                    call.respond(HttpStatusCode.BadRequest)
+                } catch (ex: ExposedSQLException) {
+                    val login = requestRegistration?.login ?: "No name"
+                    call.respond(
+                        status = HttpStatusCode.Conflict,
+                        message = ResponseRegistration(
+                            data = "Login $login already exist",
+                            code = HttpStatusCode.Conflict.value                        )
+                    )
                 }
             }
         }
