@@ -1,6 +1,8 @@
 package com.kchat.routes
 
-import com.kchat.routes.handlers.handleRegister
+import com.kchat.routes.handlers.register.handleLogin
+import com.kchat.routes.handlers.register.handleRefresh
+import com.kchat.routes.handlers.register.handleRegister
 import com.kchat.tokens.data.UserTokensRepository
 import com.kchat.user.data.UserRepository
 import com.kchat.user.model.User
@@ -22,6 +24,7 @@ fun Route.userRoutes(
     tokenManager: TokenManager
 ) {
     route("/user") {
+        //TODO удалить как завершу задачу авторизации
         post {
             try {
                 //val requestRegistration = call.receive<RequestRegistration>()
@@ -34,14 +37,13 @@ fun Route.userRoutes(
                 call.respond(HttpStatusCode.Conflict)
             }
         }
-        post("/login") {  }
-        post("/register") {
-            handleRegister(
-                userRepository,
-                userTokensRepository,
-                tokenManager
-            )
-        }
-        post("/refresh") {  }
+
+        handleRegister(
+            userRepository,
+            userTokensRepository,
+            tokenManager
+        )
+        handleLogin()
+        handleRefresh(userTokensRepository)
     }
 }

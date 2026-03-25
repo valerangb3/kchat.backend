@@ -13,15 +13,18 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
     //val repository = PostgresTaskRepository()
-    val userRepository = PostgresUserRepository()
-    val userTokensRepository = PostgresUserTokensRepository()
     val jwtConfig = JwtConfig(
         jwtSecret = environment.config.property("jwt.secret").getString(),
         jwtAudience = environment.config.property("jwt.audience").getString(),
         jwtDomain = environment.config.property("jwt.issuer").getString(),
         jwtRealm = environment.config.property("jwt.realm").getString(),
     )
+
     val tokenManager = TokenManager(jwtConfig)
+
+    val userRepository = PostgresUserRepository()
+    val userTokensRepository = PostgresUserTokensRepository(tokenManager)
+
     configureSerialization()
     configureDatabases()
     configureSockets()

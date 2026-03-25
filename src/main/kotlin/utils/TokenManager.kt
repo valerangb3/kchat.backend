@@ -4,12 +4,12 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.kchat.tokens.model.JwtConfig
 import java.util.Date
+import java.util.UUID
 
 
 class TokenManager(private val jwtConfig: JwtConfig) {
-    fun generateTokens(userLogin: String): TokenPair {
+    fun generateTokens(userLogin: String, userUUID: UUID): TokenPair {
         val now = System.currentTimeMillis()
-
         val accessLifetime = 15 * 60 * 1000L
         val refreshLifetime = 30L * 24 * 60 * 60 * 1000
 
@@ -21,6 +21,7 @@ class TokenManager(private val jwtConfig: JwtConfig) {
             .withIssuer(jwtConfig.jwtDomain)
             .withAudience(jwtConfig.jwtAudience)
             .withClaim("userLogin", userLogin)
+            .withClaim("uuid", userUUID.toString())
             .withExpiresAt(Date(accessExpire))
             .sign(Algorithm.HMAC256(jwtConfig.jwtSecret))
 
@@ -29,6 +30,7 @@ class TokenManager(private val jwtConfig: JwtConfig) {
             .withIssuer(jwtConfig.jwtDomain)
             .withAudience(jwtConfig.jwtAudience)
             .withClaim("userLogin", userLogin)
+            .withClaim("uuid", userUUID.toString())
             .withExpiresAt(Date(refreshExpire))
             .sign(Algorithm.HMAC256(jwtConfig.jwtSecret))
 

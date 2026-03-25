@@ -5,5 +5,7 @@ import java.util.UUID
 data class UserTokens(
     val userUUID: UUID,
     val refreshToken: String,
-    val expiresAt: Long
+    val refreshTokenExpiresAt: Long,
+    val accessToken: String? = null,
+    val accessTokenExpiresAt: Long? = null,
 )
