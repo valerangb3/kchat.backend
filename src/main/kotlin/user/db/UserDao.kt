@@ -28,7 +28,7 @@ object UserTable : IdTable<UUID>("user") {
     val registrationDate = long("registration_date")
     val passwordHash = varchar("password_hash", 150)
     val phone = varchar("phone", 20).nullable()
-    val photoUrl = varchar("photo", 200).nullable()
+    val photoUrl = varchar("photo_url", 200).nullable()
     val isActive = bool("is_active").default(false)
 
     override val primaryKey = PrimaryKey(id)

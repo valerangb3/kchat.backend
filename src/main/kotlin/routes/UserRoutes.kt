@@ -1,6 +1,7 @@
 package com.kchat.routes
 
 import com.kchat.routes.handlers.register.handleLogin
+import com.kchat.routes.handlers.register.handleLogout
 import com.kchat.routes.handlers.register.handleRefresh
 import com.kchat.routes.handlers.register.handleRegister
 import com.kchat.tokens.data.UserTokensRepository
@@ -43,6 +44,7 @@ fun Route.userRoutes(
             userTokensRepository,
             tokenManager
         )
+        handleLogout(userTokensRepository)
         handleLogin()
         handleRefresh(userTokensRepository)
     }

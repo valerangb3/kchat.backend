@@ -20,67 +20,56 @@ import kotlinx.serialization.SerializationException
 import java.util.UUID
 
 internal fun Route.handleRefresh(userTokensRepository: UserTokensRepository) {
-    /*authenticate("auth-jwt") {
-
-    }*/
     post("/refresh") {
-        var token: Token? = null
         try {
-            token = call.receive<Token>()
-            if (token == null) {
+            val token = call.receive<Token>()
+            val decodedJWT = JWT.decode(token.refreshToken)
+            val claimUuid = decodedJWT.getClaim("uuid")
+            if (claimUuid == null) {
                 call.respond(
                     HttpStatusCode.BadRequest,
                     RefreshResponse(
-                        message = "Error: request without refresh token",
+                        message = "Error: token without uuid claim",
                         code = HttpStatusCode.BadRequest.value
                     )
                 )
                 return@post
-            } else {
-                val decodedJWT = JWT.decode(token.refreshToken)
-                val claimUuid = decodedJWT.getClaim("uuid")
-                if (claimUuid == null) {
-                    call.respond(
-                        HttpStatusCode.BadRequest,
-                        RefreshResponse(
-                            message = "Error: token without uuid claim",
-                            code = HttpStatusCode.BadRequest.value
-                        )
-                    )
-                    return@post
-                } else {
-                    val uuid = UUID.fromString(claimUuid.asString())
-                    val tokenInfo = userTokensRepository.refreshToken(uuid)
-                    if (tokenInfo == null) {
-                        call.respond(
-                            HttpStatusCode.BadRequest,
-                            RefreshResponse(
-                                message = "Error: probably user with jwt not exist",
-                                code = HttpStatusCode.BadRequest.value
-                            )
-                        )
-                        return@post
-                    } else {
-                        val tokens = Tokens(
-                            accessToken = tokenInfo.accessToken,
-                            refreshToken = tokenInfo.refreshToken,
-                        )
-                        val authResponse = RefreshResponse(
-                            tokens = tokens,
-                            message = "JWT was successfully updated",
-                            code = HttpStatusCode.OK.value
-                        )
-
-                        call.respond(
-                            status = HttpStatusCode.OK,
-                            message = authResponse
-                        )
-                    }
-                }
             }
+            val uuid = UUID.fromString(claimUuid.asString())
+            val tokenInfo = userTokensRepository.refreshToken(uuid, token.refreshToken)
+            if (tokenInfo == null) {
+                call.respond(
+                    HttpStatusCode.BadRequest,
+                    RefreshResponse(
+                        message = "Error: probably user with jwt not exist",
+                        code = HttpStatusCode.BadRequest.value
+                    )
+                )
+                return@post
+            }
+            val tokens = Tokens(
+                accessToken = tokenInfo.accessToken,
+                refreshToken = tokenInfo.refreshToken,
+            )
+            val authResponse = RefreshResponse(
+                tokens = tokens,
+                message = "Success: JWT was successfully updated",
+                code = HttpStatusCode.OK.value
+            )
+
+            call.respond(
+                status = HttpStatusCode.OK,
+                message = authResponse
+            )
 
         } catch (ex: SerializationException) {
-
+            call.respond(
+                HttpStatusCode.BadRequest,
+                RefreshResponse(
+                    message = "Error: serialization issue",
+                    code = HttpStatusCode.BadRequest.value
+                )
+            )
         }
     }
 }

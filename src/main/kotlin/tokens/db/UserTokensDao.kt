@@ -12,7 +12,7 @@ import org.jetbrains.exposed.v1.dao.IntEntityClass
 object UserTokensTable : IntIdTable("user_tokens") {
     val userUuid = javaUUID("user_uuid")
         .references(UserTable.id)
-    val refreshToken = varchar("refresh_token", 300)
+    val refreshToken = varchar("refresh_token", 500)
     val expiresAt = long("expires_at")
 }
 
