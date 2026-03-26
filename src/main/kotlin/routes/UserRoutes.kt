@@ -45,7 +45,11 @@ fun Route.userRoutes(
             tokenManager
         )
         handleLogout(userTokensRepository)
-        handleLogin()
+        handleLogin(
+            userRepository,
+            userTokensRepository,
+            tokenManager
+        )
         handleRefresh(userTokensRepository)
     }
 }

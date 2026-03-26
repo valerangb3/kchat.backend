@@ -1,27 +1,9 @@
 package com.kchat
 
-import com.kchat.model.Priority
-import com.kchat.model.Task
-import com.kchat.model.TaskRepository
-import com.kchat.routes.userRoutes
-import com.kchat.tokens.data.UserTokensRepository
-import com.kchat.tokens.model.UserTokens
-import com.kchat.user.model.User
-import com.kchat.user.data.UserRepository
-import com.kchat.user.model.request.AuthResponse
-import com.kchat.user.model.request.RequestRegistration
-import com.kchat.user.model.request.ResponseRegistration
-import com.kchat.user.model.request.toResponseUser
-import com.kchat.utils.TokenManager
-import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.SerializationException
-import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 
 private fun RoutingContext.registration() {
 

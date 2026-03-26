@@ -4,7 +4,7 @@ import com.kchat.tokens.data.UserTokensRepository
 import com.kchat.tokens.model.UserTokens
 import com.kchat.user.data.UserRepository
 import com.kchat.user.model.request.AuthResponse
-import com.kchat.user.model.request.RequestRegistration
+import com.kchat.user.model.request.AuthCredentials
 import com.kchat.user.model.request.ResponseRegistration
 import com.kchat.user.model.request.toResponseUser
 import com.kchat.utils.TokenManager
@@ -22,9 +22,9 @@ internal fun Route.handleRegister(
     tokenManager: TokenManager
 ) {
     post("/register") {
-        var requestRegistration: RequestRegistration? = null
+        var requestRegistration: AuthCredentials? = null
         try {
-            requestRegistration = call.receive<RequestRegistration>()
+            requestRegistration = call.receive<AuthCredentials>()
             val user = userRepository.registration(requestRegistration)
             val userUuid = user.id
             if (userUuid == null) {

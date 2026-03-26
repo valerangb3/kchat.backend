@@ -3,7 +3,7 @@ package com.kchat.user.data
 import com.kchat.user.db.UserDao
 import com.kchat.user.db.toUser
 import com.kchat.user.model.User
-import com.kchat.user.model.request.RequestRegistration
+import com.kchat.user.model.request.AuthCredentials
 import com.kchat.utils.withTransaction
 import org.mindrot.jbcrypt.BCrypt
 
@@ -23,11 +23,11 @@ class PostgresUserRepository : UserRepository {
         }
     }
 
-    override suspend fun login(user: User): Boolean {
+    override suspend fun login(credential: AuthCredentials): Boolean {
         TODO("Not yet implemented")
     }
 
-    override suspend fun registration(credential: RequestRegistration) = withTransaction {
+    override suspend fun registration(credential: AuthCredentials) = withTransaction {
         val hash = BCrypt.hashpw(credential.password, BCrypt.gensalt())
         val user = UserDao.new {
             login = credential.login
