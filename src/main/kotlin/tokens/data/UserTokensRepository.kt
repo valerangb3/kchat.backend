@@ -8,4 +8,5 @@ interface UserTokensRepository {
     suspend fun createToken(userTokens: UserTokens)
     suspend fun refreshToken(uuid: UUID, refreshToken: String): TokenPair?
     suspend fun removeToken(uuid: UUID, userLogin: String): Boolean
+    suspend fun getByUUID(uuid: UUID): UserTokens?
 }

@@ -38,6 +38,13 @@ class PostgresUserTokensRepository(
         tokensInfo
     }
 
+    override suspend fun getByUUID(uuid: UUID): UserTokens? = withTransaction {
+        val userTokens = UserTokensDao.find {
+            UserTokensTable.userUuid eq uuid
+        }.firstOrNull()
+        userTokens?.toUserTokens()
+    }
+
     override suspend fun removeToken(uuid: UUID, userLogin: String): Boolean {
         return withTransaction {
             val userTokens = UserTokensDao.find {
