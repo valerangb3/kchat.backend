@@ -1,5 +1,6 @@
 package com.kchat
 
+import com.kchat.model.FakeTaskRepository
 import com.kchat.model.PostgresTaskRepository
 import com.kchat.tokens.data.PostgresUserTokensRepository
 import com.kchat.tokens.model.JwtConfig
@@ -25,9 +26,11 @@ fun Application.module() {
     val userRepository = PostgresUserRepository()
     val userTokensRepository = PostgresUserTokensRepository(tokenManager)
 
+    val taskRepository = FakeTaskRepository()
+
     configureSerialization()
     configureDatabases()
-    configureSockets()
+    configureSockets(taskRepository)
     configureSecurity(jwtConfig)
     configureRouting(
         userRepository,
